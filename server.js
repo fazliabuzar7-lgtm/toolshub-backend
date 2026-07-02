@@ -50,7 +50,14 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // ── Static file serving for generated outputs ──
-app.use('/files', express.static(path.join(__dirname, 'outputs')));
+app.use('/files', (req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Content-Disposition', 'attachment');
+  if(req.method === 'OPTIONS'){res.sendStatus(200);return;}
+  next();
+}, express.static(path.join(__dirname, 'outputs')));
 
 // ── Health check ──
 app.get('/', (req, res) => {
